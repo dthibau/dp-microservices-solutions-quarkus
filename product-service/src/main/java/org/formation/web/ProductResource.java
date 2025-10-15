@@ -11,6 +11,7 @@ import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import lombok.extern.slf4j.Slf4j;
+import org.formation.domain.MaxWeightExceededException;
 import org.formation.domain.ProductRequest;
 import org.formation.domain.Ticket;
 import org.formation.service.TicketService;
@@ -38,7 +39,7 @@ public class ProductResource {
 	@POST
 	@ResponseStatus(201)
 	@Path("/{orderId}")
-	public Ticket acceptOrder(@RestPath Long orderId, List<ProductRequest> productsRequest) throws JsonProcessingException {
+	public Ticket acceptOrder(@RestPath Long orderId, List<ProductRequest> productsRequest) throws JsonProcessingException, MaxWeightExceededException {
 		Ticket t = ticketService.createTicket(orderId, productsRequest);
 
 		log.info("Ticket created "+ t );

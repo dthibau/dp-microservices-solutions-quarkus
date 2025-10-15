@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.formation.domain.MaxWeightExceededException;
 import org.formation.domain.Ticket;
 import org.formation.service.TicketService;
 
@@ -30,7 +31,7 @@ public class CreateOrderSaga {
 
 
 	@Incoming("tickets-command")
-	public void handleTicketCommand(TicketCommand ticketCommand) throws JsonProcessingException {
+	public void handleTicketCommand(TicketCommand ticketCommand) throws JsonProcessingException, MaxWeightExceededException {
 		log.info("Receiving command : " + ticketCommand);
 		Ticket ticket = null;
 		switch (ticketCommand.getCommande()) {

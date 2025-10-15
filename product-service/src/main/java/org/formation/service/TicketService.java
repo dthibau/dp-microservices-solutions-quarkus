@@ -8,10 +8,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.formation.domain.ProductRequest;
-import org.formation.domain.Ticket;
-import org.formation.domain.TicketEvent;
-import org.formation.domain.TicketStatus;
+import org.formation.domain.*;
 
 import java.util.List;
 
@@ -29,42 +26,40 @@ public class TicketService {
     EventService eventService;     // inchangé (bean CDI)
 
     @Transactional
-    public Ticket createTicket(Long orderId, List<ProductRequest> productsRequest) throws JsonProcessingException {
-        Ticket t = new Ticket();
-        t.setOrderId(orderId);
-        t.setProductRequests(productsRequest);
-        t.setStatus(TicketStatus.PENDING);
+    public Ticket createTicket(Long orderId, List<ProductRequest> productsRequest) throws JsonProcessingException, MaxWeightExceededException {
+        ResultDomain resultDomain = Ticket.createTicket(orderId, productsRequest);
 
-        em.persist(t);
-        em.flush(); // pour disposer de l'id immédiatement si besoin
+        em.persist(resultDomain.getTicket());
+        em.persist(resultDomain.getTicketEvent());
 
-        TicketEvent event = new TicketEvent(null,null, TicketStatus.PENDING, t.getId(), mapper.writeValueAsString(t));
-        em.persist(event);
-
-        log.info("Ticket created: {}", t.getId());
-        return t;
+        return resultDomain.getTicket();
     }
 	public Ticket approveTicket(Long orderId) throws JsonProcessingException {
-        Ticket ticket = em.find(Ticket.class,orderId);
-        if (ticket == null) {
-            throw new EntityNotFoundException("No corresponding ticket for orderId=" + orderId);
-        }
-        ticket.setStatus(TicketStatus.CREATED);
-   		TicketEvent event = new TicketEvent(null,null, TicketStatus.CREATED, ticket.getId(), mapper.writeValueAsString(ticket));
-           em.persist(event);
-           return ticket;
+        Ticket ticket = em.createQuery(
+                        "select t from Ticket t where t.orderId = :orderId", Ticket.class)
+                .setParameter("orderId", orderId)   // voir point 3 pour le type
+                .getSingleResult();        if (ticket == null)
+            throw new EntityNotFoundException("No corresponfing ticket for orderId=" + orderId);
+        ResultDomain resultDomain = ticket.approveTicket();
+
+        em.persist(resultDomain.getTicketEvent());
+
+        return resultDomain.getTicket();
     }
 
     public Ticket rejectTicket(Long orderId) throws JsonProcessingException {
-        Ticket ticket = em.find(Ticket.class,orderId);
+        Ticket ticket = em.createQuery(
+                        "select t from Ticket t where t.orderId = :orderId", Ticket.class)
+                .setParameter("orderId", orderId)   // voir point 3 pour le type
+                .getSingleResult();
         if (ticket == null) {
             throw new EntityNotFoundException("No corresponding ticket for orderId=" + orderId);
         }
-        ticket.setStatus(TicketStatus.REJECTED);
-    	TicketEvent event = new TicketEvent(null,null, TicketStatus.REJECTED, ticket.getId(), mapper.writeValueAsString(ticket));
-    	em.persist(event);
+        ResultDomain resultDomain = ticket.rejectTicket();
 
-    	return ticket;
+        em.persist(resultDomain.getTicketEvent());
+
+        return resultDomain.getTicket();
     }
     @Transactional
     public Ticket readyToPickUp(Long ticketId) throws JsonProcessingException {
@@ -73,15 +68,11 @@ public class TicketService {
             throw new jakarta.ws.rs.NotFoundException("Ticket not found: " + ticketId);
         }
 
-        TicketEvent event = new TicketEvent(null, t.getStatus(), TicketStatus.READY_TO_PICK, t.getId(), mapper.writeValueAsString(t));
-        t.setStatus(TicketStatus.READY_TO_PICK);
-        em.persist(event);
+        ResultDomain resultDomain = t.readyToPickUp();
 
-        // inutile de save/merge si l'entité est managée; merge au cas où
-        em.merge(t);
+        em.persist(resultDomain.getTicketEvent());
 
-        log.info("Ticket {} marked READY_TO_PICK", t.getId());
-        return t;
+        return resultDomain.getTicket();
     }
 }
 

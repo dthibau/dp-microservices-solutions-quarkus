@@ -1,6 +1,5 @@
 package org.formation.domain;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,8 +10,7 @@ import lombok.Data;
 @Data
 public class Fournisseur {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
 	private String reference;
