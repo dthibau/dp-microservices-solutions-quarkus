@@ -22,8 +22,7 @@ public class OrderService {
     EntityManager em; // Hibernate ORM (JPA) – pas de Spring Data
 
     @Inject
-    @RestClient
-    ProductService productService;
+    ProductGateway productGateway;
 
     @Transactional
     public Order createOrder(CreateOrderRequest createOrderRequest) {
@@ -39,7 +38,7 @@ public class OrderService {
                 .toList();
 
         // 3) Appel REST au product-service (POST /api/tickets/{orderId})
-        Ticket t = productService.acceptOrder(order.getId(), productRequest);
+        Ticket t = productGateway.acceptOrder(order.getId(), productRequest);
 
         log.info("Ticket created {}", t);
 
