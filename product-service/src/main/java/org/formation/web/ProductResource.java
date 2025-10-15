@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PATCH;
@@ -37,7 +38,7 @@ public class ProductResource {
 	@POST
 	@ResponseStatus(201)
 	@Path("/{orderId}")
-	public Ticket acceptOrder(@RestPath Long orderId, List<ProductRequest> productsRequest) {
+	public Ticket acceptOrder(@RestPath Long orderId, List<ProductRequest> productsRequest) throws JsonProcessingException {
 		Ticket t = ticketService.createTicket(orderId, productsRequest);
 
 		log.info("Ticket created "+ t );
@@ -47,7 +48,7 @@ public class ProductResource {
 
 	@PATCH
 	@Path("/{ticketId}/pickup")
-	public Ticket noteTicketReadyToPickUp(@RestPath Long ticketId) {
+	public Ticket noteTicketReadyToPickUp(@RestPath Long ticketId) throws JsonProcessingException {
 
 		Ticket t = ticketService.readyToPickUp(ticketId);
 
