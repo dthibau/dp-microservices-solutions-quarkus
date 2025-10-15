@@ -1,7 +1,10 @@
 package org.formation.web;
 
+import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -13,6 +16,16 @@ import org.jboss.resteasy.reactive.RestPath;
 
 @Path("/api/tickets")
 public class ProductResource {
+
+	@GET
+	public String getHostInfo() {
+		try {
+			InetAddress addr = InetAddress.getLocalHost();
+			return "Host: " + addr.getHostName() + " / IP: " + addr.getHostAddress();
+		} catch (Exception e) {
+			return "Unable to determine host info: " + e.getMessage();
+		}
+	}
 
 	@POST
 	@ResponseStatus(201)
