@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.formation.domain.ProductRequest;
@@ -30,20 +31,41 @@ public class TicketService {
     @Transactional
     public Ticket createTicket(Long orderId, List<ProductRequest> productsRequest) throws JsonProcessingException {
         Ticket t = new Ticket();
-        t.setOrderId(String.valueOf(orderId));
+        t.setOrderId(orderId);
         t.setProductRequests(productsRequest);
-        t.setStatus(TicketStatus.CREATED);
+        t.setStatus(TicketStatus.PENDING);
 
         em.persist(t);
         em.flush(); // pour disposer de l'id immédiatement si besoin
 
-        TicketEvent event = new TicketEvent(null,null, TicketStatus.CREATED, t.getId(), mapper.writeValueAsString(t));
+        TicketEvent event = new TicketEvent(null,null, TicketStatus.PENDING, t.getId(), mapper.writeValueAsString(t));
         em.persist(event);
 
         log.info("Ticket created: {}", t.getId());
         return t;
     }
+	public Ticket approveTicket(Long orderId) throws JsonProcessingException {
+        Ticket ticket = em.find(Ticket.class,orderId);
+        if (ticket == null) {
+            throw new EntityNotFoundException("No corresponding ticket for orderId=" + orderId);
+        }
+        ticket.setStatus(TicketStatus.CREATED);
+   		TicketEvent event = new TicketEvent(null,null, TicketStatus.CREATED, ticket.getId(), mapper.writeValueAsString(ticket));
+           em.persist(event);
+           return ticket;
+    }
 
+    public Ticket rejectTicket(Long orderId) throws JsonProcessingException {
+        Ticket ticket = em.find(Ticket.class,orderId);
+        if (ticket == null) {
+            throw new EntityNotFoundException("No corresponding ticket for orderId=" + orderId);
+        }
+        ticket.setStatus(TicketStatus.REJECTED);
+    	TicketEvent event = new TicketEvent(null,null, TicketStatus.REJECTED, ticket.getId(), mapper.writeValueAsString(ticket));
+    	em.persist(event);
+
+    	return ticket;
+    }
     @Transactional
     public Ticket readyToPickUp(Long ticketId) throws JsonProcessingException {
         Ticket t = em.find(Ticket.class, ticketId);

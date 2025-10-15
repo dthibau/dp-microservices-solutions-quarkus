@@ -9,6 +9,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.formation.domain.Order;
 import org.formation.service.dto.ProductRequest;
 import org.formation.service.dto.Ticket;
+import org.formation.service.saga.CreateOrderSaga;
 import org.formation.web.CreateOrderRequest;
 
 import java.util.List;
@@ -19,10 +20,11 @@ public class OrderService {
 
 
     @Inject
+    CreateOrderSaga createOrderSaga;
+    @Inject
     EntityManager em; // Hibernate ORM (JPA) – pas de Spring Data
 
-    @Inject
-    ProductGateway productGateway;
+
 
     @Transactional
     public Order createOrder(CreateOrderRequest createOrderRequest) {
@@ -37,10 +39,9 @@ public class OrderService {
                 .map(ProductRequest::new)
                 .toList();
 
-        // 3) Appel REST au product-service (POST /api/tickets/{orderId})
-        Ticket t = productGateway.acceptOrder(order.getId(), productRequest);
+        createOrderSaga.startSaga(order);
 
-        log.info("Ticket created {}", t);
+        log.info("Saga stated");
 
         return order;
     }
