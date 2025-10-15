@@ -18,7 +18,7 @@ public class Ticket {
 	@Enumerated(EnumType.STRING)
 	private TicketStatus status;
 	
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	List<ProductRequest> productRequests;
 	
 	
