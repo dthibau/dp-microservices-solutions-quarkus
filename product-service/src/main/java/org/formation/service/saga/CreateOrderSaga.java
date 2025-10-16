@@ -26,7 +26,7 @@ public class CreateOrderSaga {
 	@Inject
 	private TicketService ticketService;
 	@Channel("order-response")
-	private Emitter<KafkaRecord<Long, CommandResponse>> commandResponseEmmiter;
+	private Emitter<CommandResponse> commandResponseEmmiter;
 
 
 
@@ -46,8 +46,7 @@ public class CreateOrderSaga {
 			break;
 
 		}
-		commandResponseEmmiter.send(KafkaRecord.of(ticket.getOrderId(),
-				new CommandResponse(ticket.getOrderId(), 0, ticketCommand.getCommande())));
+		commandResponseEmmiter.send(new CommandResponse(ticket.getOrderId(), 0, ticketCommand.getCommande()));
 
 	}
 

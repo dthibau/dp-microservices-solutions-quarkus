@@ -25,6 +25,9 @@ public class OrderService {
     EntityManager em; // Hibernate ORM (JPA) – pas de Spring Data
 
 
+    public Order getOrderById(Long orderId) {
+        return em.find(Order.class, orderId);
+    }
 
     @Transactional
     public Order createOrder(CreateOrderRequest createOrderRequest) {

@@ -20,4 +20,7 @@ public class Livreur {
 
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Review> reviews;
+
+	@Embedded
+	private Position position;
 }

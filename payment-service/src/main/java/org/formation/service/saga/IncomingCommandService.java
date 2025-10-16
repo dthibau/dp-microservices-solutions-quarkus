@@ -11,7 +11,7 @@ import org.eclipse.microprofile.reactive.messaging.Outgoing;
 public class IncomingCommandService {
 
 
-	@Incoming("payment-command")
+	@Incoming("payments-command")
 	@Outgoing("order-response")
 	public CommandResponse handlePayment(PaymentCommand paymentCommand ) {
 		log.info("PAYMENT-REQUEST " + paymentCommand.getPaymentInformation());

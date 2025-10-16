@@ -10,20 +10,20 @@ import lombok.Data;
 @Data
 public class Livraison {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
-	private String noCommande;
-	
-	@OneToOne
+
+	private long ticketId;
+
+	private long orderId;
+
+	@ManyToOne
 	private Livreur livreur;
-	
+	@Enumerated(EnumType.STRING)
 	private Status status;
-	
+
 
 	private Instant creationDate;
-	
 	
 	@Override
 	public int hashCode() {

@@ -25,6 +25,9 @@ public class TicketService {
     @Inject
     EventService eventService;     // inchangé (bean CDI)
 
+    public List<Ticket> findAll() {
+        return em.createQuery("from Ticket", Ticket.class).getResultList();
+    }
     @Transactional
     public Ticket createTicket(Long orderId, List<ProductRequest> productsRequest) throws JsonProcessingException, MaxWeightExceededException {
         ResultDomain resultDomain = Ticket.createTicket(orderId, productsRequest);
@@ -34,6 +37,7 @@ public class TicketService {
 
         return resultDomain.getTicket();
     }
+    @Transactional
 	public Ticket approveTicket(Long orderId) throws JsonProcessingException {
         Ticket ticket = em.createQuery(
                         "select t from Ticket t where t.orderId = :orderId", Ticket.class)
@@ -46,7 +50,7 @@ public class TicketService {
 
         return resultDomain.getTicket();
     }
-
+    @Transactional
     public Ticket rejectTicket(Long orderId) throws JsonProcessingException {
         Ticket ticket = em.createQuery(
                         "select t from Ticket t where t.orderId = :orderId", Ticket.class)

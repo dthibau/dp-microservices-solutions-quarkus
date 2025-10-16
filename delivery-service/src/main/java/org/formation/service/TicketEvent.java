@@ -5,8 +5,11 @@ import lombok.Data;
 @Data
 public class TicketEvent {
 
-    private Ticket ticket;
-
-
     private String newStatus;
+
+    private Long ticketId;
+
+    private Long orderId;
+
+    private String ticketPayload;
 }

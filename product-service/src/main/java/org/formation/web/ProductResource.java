@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.formation.domain.MaxWeightExceededException;
 import org.formation.domain.ProductRequest;
 import org.formation.domain.Ticket;
+import org.formation.domain.TicketStatus;
 import org.formation.service.TicketService;
 import org.jboss.resteasy.reactive.ResponseStatus;
 import org.jboss.resteasy.reactive.RestPath;
@@ -26,6 +27,12 @@ public class ProductResource {
 	@Inject
 	TicketService ticketService;
 
+	@GET
+	@Path("/ready")
+	public List<Ticket> findReady() {
+		return ticketService.findAll().stream().filter(t -> t.getStatus().equals(TicketStatus.CREATED))
+				.toList();
+	}
 	@GET
 	public String getHostInfo() {
 		try {

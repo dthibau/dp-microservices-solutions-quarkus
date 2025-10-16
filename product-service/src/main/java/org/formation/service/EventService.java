@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class EventService {
 
     @Channel("tickets")
-    Emitter<KafkaRecord<Long, TicketEvent>> emitter;
+    Emitter<TicketEvent> emitter;
 
     @Inject
     EntityManager em;
@@ -32,7 +32,7 @@ public class EventService {
             try {
                 log.info("Sending event {}} to topic ticket", e);
                 // on envoie avec la clé = ticketId
-                emitter.send(KafkaRecord.of(e.getTicketId(), e))
+                emitter.send(e)
                         .toCompletableFuture()
                         .get(20, TimeUnit.SECONDS);
                 em.remove(e);

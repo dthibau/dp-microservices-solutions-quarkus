@@ -1,17 +1,14 @@
-package org.formation.service;
+package org.formation.service.channel;
 
-import io.quarkus.logging.Log;
-import io.quarkus.runtime.StartupEvent;
 import io.smallrye.common.annotation.Blocking;
-import io.smallrye.mutiny.Multi;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.formation.domain.Livraison;
+import org.formation.service.DeliveryService;
+import org.formation.service.TicketEvent;
 
 @ApplicationScoped
 @Slf4j
@@ -25,10 +22,14 @@ public class ConsumeTicketChannelService {
     @Blocking                 // bascule sur le worker pool (pas le thread IO)
     @Transactional
     public void receiveTicketEvent(TicketEvent ticketEvent) {
+        if (ticketEvent == null || ticketEvent.getNewStatus() == null) {
+            log.warn("Received null ticket event");
+            return;
+        }
         switch (ticketEvent.getNewStatus()) {
 
             case "READY_TO_PICK":
-                Livraison l = deliveryService.createDelivery(ticketEvent.getTicket().getTicketId());
+                Livraison l = deliveryService.createDelivery(ticketEvent.getTicketId(), ticketEvent.getTicketId());
                 log.info("Livraison créée {}",l);
                 break;
         }

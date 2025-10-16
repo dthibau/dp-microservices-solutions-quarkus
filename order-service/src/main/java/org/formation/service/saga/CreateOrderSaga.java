@@ -22,10 +22,10 @@ import lombok.extern.java.Log;
 public class CreateOrderSaga {
 
 	@Channel("tickets-command")
-    Emitter<KafkaRecord<Long,TicketCommand>> ticketCommandEventEmitter;
+    Emitter<TicketCommand> ticketCommandEventEmitter;
 
 	@Channel("payments-command")
-	Emitter<KafkaRecord<Long,PaymentCommand>> paymentCommandEventEmitter;
+	Emitter<PaymentCommand> paymentCommandEventEmitter;
 
 	@Inject
 	EntityManager em;
@@ -35,7 +35,7 @@ public class CreateOrderSaga {
 	public void startSaga(Order order) {
 		log.info("SAGA STARTED for order " + order);
 
-		ticketCommandEventEmitter.send(KafkaRecord.of(order.getId(), new TicketCommand(order.getId(), "TICKET_CREATE", order.getProductRequests())));
+		ticketCommandEventEmitter.send(new TicketCommand(order.getId(), "TICKET_CREATE", order.getProductRequests()));
 
 	}
 
@@ -62,8 +62,7 @@ public class CreateOrderSaga {
 
 		if (ticketResponse.isOk()) {
 			log.info("SAGA Ticket OK  : sending Payment command" + order.getPaymentInformation());
-			paymentCommandEventEmitter.send(KafkaRecord.of(order.getId(),
-					new PaymentCommand(order.getId(), order.total(), order.getPaymentInformation())));
+			paymentCommandEventEmitter.send(new PaymentCommand(order.getId(), order.total(), order.getPaymentInformation()));
 		} else {
 			log.info("SAGA Ticket NOK : rejecting command"  +order.getId());
 			// Rejecting order
@@ -79,8 +78,7 @@ public class CreateOrderSaga {
 
 		if (paymentResponse.isOk()) {
 			log.info("SAGA Payment OK : Sending TICKET_APPROVE  APPROVE Command locally " + order.getPaymentInformation());
-			ticketCommandEventEmitter.send(KafkaRecord.of(order.getId(),
-					new TicketCommand(order.getId(), "TICKET_APPROVE", order.getProductRequests())));
+			ticketCommandEventEmitter.send(new TicketCommand(order.getId(), "TICKET_APPROVE", order.getProductRequests()));
 			order.setStatus(OrderStatus.APPROVED);
 
 		} else {
@@ -88,8 +86,7 @@ public class CreateOrderSaga {
 			// Rejecting order
 			order.setStatus(OrderStatus.REJECTED);
 			// Rejacting ticket
-			ticketCommandEventEmitter.send(KafkaRecord.of(order.getId(),
-					new TicketCommand(order.getId(), "TICKET_REJECT", order.getProductRequests())));
+			ticketCommandEventEmitter.send(new TicketCommand(order.getId(), "TICKET_REJECT", order.getProductRequests()));
 		}
 	}
 }
