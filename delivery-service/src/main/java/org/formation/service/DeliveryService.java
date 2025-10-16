@@ -4,15 +4,18 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.formation.domain.Livraison;
 import org.formation.domain.Livreur;
 import org.formation.domain.Status;
 import org.formation.service.channel.OutgoingEventService;
+import org.hibernate.Hibernate;
 
 import java.time.Instant;
 import java.util.List;
 
 @ApplicationScoped
+@Slf4j
 public class DeliveryService {
 
     @Inject
@@ -36,14 +39,17 @@ public class DeliveryService {
         return l; // l est managé et portera son id après flush/commit
     }
 
+    @Transactional
     public Livraison affect(Long livraisonId, Long livreurId) {
+        log.info("Affecting delivery {} to deliverer {}", livraisonId, livreurId);
         Livraison livraison = em.find(Livraison.class, livraisonId);
         Livreur livreur = em.find(Livreur.class, livreurId);
         livraison.setLivreur(livreur);
         livraison.setStatus(Status.LIVREUR_AFFECTE);
 
-        outgoingEventService.publishEvent(new LivraisonEvent(livraison, Status.LIVREUR_AFFECTE.toString()));
-
+ //       outgoingEventService.publishEvent(new LivraisonEvent(livraison, Status.LIVREUR_AFFECTE.toString()));
+log.info("Affected delivery {} to deliverer {}", livraisonId, livreurId);
+em.flush();
         return livraison;
     }
     public Livraison findByOrderId(Long orderId) {

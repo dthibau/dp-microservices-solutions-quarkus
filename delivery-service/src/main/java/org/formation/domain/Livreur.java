@@ -18,7 +18,7 @@ public class Livreur {
 	
 	private String telephone;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<Review> reviews;
 
 	@Embedded

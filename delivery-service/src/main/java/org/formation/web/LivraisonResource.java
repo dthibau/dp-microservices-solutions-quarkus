@@ -57,7 +57,7 @@ public class LivraisonResource {
 	}
 
 	@GET
-	@Path("/orders/{id}")
+	@Path("/orders/{orderId}")
 	public Livraison findByOrderId(@RestPath Long orderId) {
 		return deliveryService.findByOrderId(orderId);
 	}
