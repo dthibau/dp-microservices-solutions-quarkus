@@ -14,6 +14,6 @@ public class OutgoingEventService {
 
     public void publishEvent(LivraisonEvent livraisonEvent) {
 
-    //    emitter.send(livraisonEvent);
+        emitter.send(livraisonEvent);
     }
 }

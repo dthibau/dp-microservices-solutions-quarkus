@@ -47,7 +47,7 @@ public class DeliveryService {
         livraison.setLivreur(livreur);
         livraison.setStatus(Status.LIVREUR_AFFECTE);
 
- //       outgoingEventService.publishEvent(new LivraisonEvent(livraison, Status.LIVREUR_AFFECTE.toString()));
+        outgoingEventService.publishEvent(new LivraisonEvent(livraison, Status.LIVREUR_AFFECTE.toString()));
 log.info("Affected delivery {} to deliverer {}", livraisonId, livreurId);
 em.flush();
         return livraison;

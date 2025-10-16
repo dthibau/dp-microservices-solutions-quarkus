@@ -15,6 +15,7 @@ import org.formation.domain.OrderStatus;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.java.Log;
+import org.formation.service.OrderEvent;
 
 @ApplicationScoped
 @Slf4j
@@ -26,6 +27,9 @@ public class CreateOrderSaga {
 
 	@Channel("payments-command")
 	Emitter<PaymentCommand> paymentCommandEventEmitter;
+
+	@Channel("orders")
+	Emitter<OrderEvent> orderEventEmitter;
 
 	@Inject
 	EntityManager em;
@@ -80,6 +84,7 @@ public class CreateOrderSaga {
 			log.info("SAGA Payment OK : Sending TICKET_APPROVE  APPROVE Command locally " + order.getPaymentInformation());
 			ticketCommandEventEmitter.send(new TicketCommand(order.getId(), "TICKET_APPROVE", order.getProductRequests()));
 			order.setStatus(OrderStatus.APPROVED);
+			orderEventEmitter.send(new OrderEvent(order.getId(), "ORDER_APPROVED",order));
 
 		} else {
 			log.info("SAGA Payment NOK : Sending TICKET_Reject  REJECT Command locally " + order.getPaymentInformation());
