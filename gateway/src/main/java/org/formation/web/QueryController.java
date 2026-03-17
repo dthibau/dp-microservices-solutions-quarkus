@@ -16,7 +16,13 @@ public class QueryController {
 	
 		@Inject
 		QueryService queryService;
-		
+
+	@GET
+	@Path("/dto/{orderId}")
+	public OrderDto getOrderDetailsWithDto(@RestPath long orderId) {
+
+		return queryService.getOrderDetailsWithDto(orderId);
+	}
 		
 		@GET
 		@Path("/{orderId}")

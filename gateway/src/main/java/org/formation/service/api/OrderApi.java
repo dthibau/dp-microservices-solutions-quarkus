@@ -1,4 +1,4 @@
-package org.formation.service;
+package org.formation.service.api;
 
 import io.smallrye.mutiny.Uni;
 import jakarta.ws.rs.Consumes;
